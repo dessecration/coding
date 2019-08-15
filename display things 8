@@ -1,0 +1,107 @@
+static List<Article> artikli = new List<Article>();
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (Page.IsPostBack) FilterArticles();
+        else
+        {
+            LoadArticles();
+            LoadLists();
+        }
+        InsertIntoTable();
+    }
+
+    void FilterArticles()
+    {
+        LoadArticles();
+        artikli = artikli.Where(a => a.Proizvodjac == manufacturerList.SelectedItem.Text &&
+                                     a.RAM == ramList.SelectedItem.Text &&
+                                     a.Procesor == cpuList.SelectedItem.Text &&
+                                     a.Kamera == camList.SelectedItem.Text &&
+                                     a.Ekran == screenList.SelectedItem.Text).ToList();
+    }
+
+    void LoadArticles()
+    {
+        artikli.Clear();
+        using (StreamReader sr = new StreamReader(MapPath("vebprodavnica.txt")))
+        {
+            while (!sr.EndOfStream) artikli.Add(new Article(sr.ReadLine()));
+        }
+        //LoadLists();
+    }
+
+    void LoadLists()
+    {
+        manufacturerList.Items.Clear();
+        cpuList.Items.Clear();
+        camList.Items.Clear();
+        screenList.Items.Clear();
+
+        List<string> proizvodjac = new List<string>(),
+                     procesori = new List<string>(),
+                     kamere = new List<string>(),
+                     ekrani = new List<string>();
+
+        foreach (var proizvod in artikli)
+        {
+            if (!proizvodjac.Contains(proizvod.Proizvodjac)) proizvodjac.Add(proizvod.Proizvodjac);
+            if (!procesori.Contains(proizvod.Procesor)) procesori.Add(proizvod.Procesor);
+            if (!kamere.Contains(proizvod.Kamera)) kamere.Add(proizvod.Kamera);
+            if (!ekrani.Contains(proizvod.Ekran)) ekrani.Add(proizvod.Ekran);
+        }
+
+        foreach (string item in proizvodjac)
+        {
+            manufacturerList.Items.Add(item);
+        }
+        foreach (string item in procesori)
+        {
+            cpuList.Items.Add(item);
+        }
+        foreach (string item in kamere)
+        {
+            camList.Items.Add(item);
+        }
+        foreach (string item in ekrani)
+        {
+            screenList.Items.Add(item);
+        }
+    }
+
+    void InsertIntoTable()
+    {
+        foreach (Article article in artikli)
+        {
+            // Row
+            TableRow tr = new TableRow();
+            // Cellovi
+            TableCell sifra = new TableCell(),
+                      naziv = new TableCell(),
+                      ram = new TableCell(),
+                      cpu = new TableCell(),
+                      cam = new TableCell(),
+                      ekran = new TableCell(),
+                      slika = new TableCell(),
+                      cena = new TableCell();
+
+            sifra.Text = article.Sifra;
+            naziv.Text = article.Proizvodjac + " " + article.Naziv;
+            ram.Text = article.RAM;
+            cpu.Text = article.Procesor;
+            cam.Text = article.Ekran;
+            ekran.Text = article.Kamera;
+            Image Slika = new Image();
+            Slika.CssClass = "proizvod";
+            Slika.Attributes["src"] = "Slike/"+article.Slika;
+            slika.Controls.Add(Slika);
+            cena.Text = "$" + article.Cena;
+
+            tr.Cells.AddRange(new TableCell[]
+            {
+                sifra,naziv,ram,cpu,cam,ekran,slika,cena
+            });
+
+            articlesTable.Rows.Add(tr);
+        }
+    }
