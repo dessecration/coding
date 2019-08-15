@@ -1,0 +1,43 @@
+public class ConverterService : WebService
+{
+    const int brojSlova = 30;
+    static string[] LatinicaVeliko = { "DŽ", "NJ", "LJ", "A", "B", "V", "G", "D", "Đ", "E", "Ž", "Z", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "Ć", "U", "F", "H", "C", "Č", "Š" };
+    static string[] LatinicaMalo = { "dž", "nj", "lj", "a", "b", "v", "g", "d", "đ", "e", "ž", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "ć", "u", "f", "h", "c", "č", "š" };
+    static string[] CirilicaVeliko = { "Џ", "Њ", "Љ", "А", "Б", "В", "Г", "Д", "Ђ", "Е", "Ж", "З", "И", "Ј", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "Ћ", "У", "Ф", "Х", "Ц", "Ч", "Ш" };
+    static string[] CirilicaMalo = { "џ", "њ", "љ", "а", "б", "в", "г", "д", "Ђ", "е", "ж", "з", "и", "ј", "к", "л", "м", "н", "о", "п", "р", "с", "т", "ћ", "у", "ф", "х", "ц", "ч", "ш" };
+
+    public ConverterService()
+    {
+
+    }
+
+    [WebMethod]
+    public string LatToCyr(string tekst)
+    {
+        for (int i = 0; i < brojSlova; i++)
+            tekst = tekst.Replace(LatinicaMalo[i], CirilicaMalo[i]).
+                          Replace(LatinicaVeliko[i], CirilicaVeliko[i]);
+        return tekst;
+    }
+
+    [WebMethod]
+    public string CyrToLat(string tekst)
+    {
+        for (int i = 0; i < brojSlova; i++)
+            tekst = tekst.Replace(CirilicaMalo[i], LatinicaMalo[i]).
+                          Replace(CirilicaVeliko[i], LatinicaVeliko[i]);
+        return tekst;
+    }
+}
+
+------------------------------------------------------------------
+ protected void LatToCyrButton_Click(object sender, EventArgs e)
+    {
+        Cirilica.Text = converterService.LatToCyr(Latinica.Text);
+    }
+
+    protected void CryToLatButton_Click(object sender, EventArgs e)
+    {
+        Latinica.Text = converterService.CyrToLat(Cirilica.Text);
+    }
+}
