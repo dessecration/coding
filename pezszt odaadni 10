@@ -1,0 +1,70 @@
+ public KursService()
+    {
+
+    }
+
+    [WebMethod]
+    public double ProcitajKursNaDan(DateTime date,string currency)
+    {
+        return HocuDaUmrem.ReadKurs(date, currency);
+    }
+
+    [WebMethod]
+    public bool UpisiKursNaDan(DateTime date,string currency, double value)
+    {
+        HocuDaUmrem.WriteKurs(date, currency, value);
+        return true;
+    }
+
+    [WebMethod]
+    public List<string> ProcitajSve()
+    {
+        return HocuDaUmrem.ProcitajSve();
+    }
+
+    public class HocuDaUmrem
+    {
+        public static double ReadKurs(DateTime date,string currency)
+        {
+            using (StreamReader sr = new StreamReader(HttpContext.Current.Server.MapPath("~/KursnaLista.txt")))
+            {
+                while(!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    if (line.StartsWith(date.ToShortDateString()))
+                        if (line.Contains(currency))
+                            return double.Parse(line.Split('|')[2]);
+                }
+                return -1;
+            }
+        }
+
+        public static List<string> ProcitajSve()
+        {
+            List<string> valute = new List<string>();
+            using (StreamReader sr = new StreamReader(HttpContext.Current.Server.MapPath("~/KursnaLista.txt")))
+            {
+                while(!sr.EndOfStream)
+                    valute.Add(sr.ReadLine().Split('|')[1]);
+            }
+            return valute.Distinct().ToList();
+        }
+        public static void WriteKurs(DateTime date, string currency, double value)
+        {
+            string[] linije = File.ReadAllLines(HttpContext.Current.Server.MapPath("~/KursnaLista.txt"));
+            for(int i = 0; i < linije.Length; i++)
+            {
+                if(linije[i].StartsWith(date.ToShortDateString()))
+                {
+                    if (linije[i].Contains(currency))
+                    {
+                        linije[i] = string.Format("{0}|{1}|{2}", date.ToShortDateString(), currency, value.ToString());
+                        File.WriteAllLines(HttpContext.Current.Server.MapPath("~/KursnaLista.txt"), linije);
+                        return;
+                    }
+                }
+            }
+            using (StreamWriter sr = new StreamWriter(HttpContext.Current.Server.MapPath("~/KursnaLista.txt")))
+                sr.WriteLine(string.Format("{0}|{1}|{2}", date.ToShortDateString(), currency, value.ToString()));
+        }
+    }
