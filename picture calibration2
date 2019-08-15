@@ -1,0 +1,6 @@
+for (let slika of document.getElementsByClassName('slika')) {
+    slika.onclick = () => {
+        document.getElementById("main").src = slika.src;
+        document.getElementsByTagName("h1")[0].innerHTML = `Slika ${slika.id}`;
+    };
+}
