@@ -1,0 +1,16 @@
+const animals = document.getElementsByClassName('animals');
+const audio = document.getElementsByTagName('audio')[0];
+
+for (let animal of animals) {
+    animal.onmouseenter = () => {
+        audio.src = `Audio/${animal.id}.mp3`;
+        audio.load();
+        audio.play();
+    }
+    animal.onclick = () => {
+        window.open(`https://en.wikipedia.org/wiki/${animal.id}`);
+    }
+    burek.onmouseleave = () => {
+        audio.pause();
+    }
+}
