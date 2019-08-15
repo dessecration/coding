@@ -1,0 +1,133 @@
+   public class Linija
+    {
+        public string Ime;
+        public List<Smer> Smerovi;
+    }
+
+    public class Smer
+    {
+        public string Ime;
+        public List<string> Vreme;
+    }
+
+    public static List<Linija> linije = new List<Linija>();
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!Page.IsPostBack)
+        {
+            UcitajLinije();
+        }
+    }
+
+    void UcitajLinije()
+    {
+        _Default.linije.Clear();
+        linijeList.Items.Clear();
+
+        var linije = Directory.GetFiles(MapPath("Linije"));
+       
+        foreach (var linija in linije)
+        {
+            string ime = linija.Replace("Linija", "Linija ").Replace(".txt", "");
+            ime = ime.Remove(0, ime.LastIndexOf("Linija"));
+            _Default.linije.Add(new Linija
+            {
+                Ime = ime,
+                Smerovi = new List<Smer>()
+            });
+        }
+        foreach (var linija in _Default.linije)
+        {
+            linijeList.Items.Add(linija.Ime);
+        }
+        UcitajSmerove();
+    }
+
+    void UcitajSmerove()
+    {
+        var alinija = linije.Find(o => o.Ime == linijeList.SelectedItem.Text);
+        smeroviList.Items.Clear();
+
+        string path = Path.Combine(MapPath("Linije"), linijeList.SelectedItem.Text.Replace(" ", "") + ".txt");
+        using (StreamReader sr = new StreamReader(path))
+        {
+            while(!sr.EndOfStream)
+            {
+                string linija = sr.ReadLine();
+                if(linija.StartsWith("SMER"))
+                {
+                    alinija.Smerovi.Add(new Smer
+                    {
+                        Ime = linija.Replace("SMER:", ""),
+                        Vreme = new List<string>()
+                    });
+                }
+            }
+        }
+
+        foreach (var line in alinija.Smerovi)
+        {
+            smeroviList.Items.Add(line.Ime);
+        }
+        UzmiSmer();
+    }
+
+    void UzmiSmer()
+    {
+        int z = linije.FindIndex(o => o.Ime == linijeList.SelectedItem.Text);
+        var smer = linije[z].Smerovi.Find(s => s.Ime == smeroviList.SelectedItem.Text);
+        smer.Vreme.Clear();
+
+        string path = Path.Combine(MapPath("Linije"), linijeList.SelectedItem.Text.Replace(" ", "") + ".txt");
+        using (StreamReader sr = new StreamReader(path))
+        {
+            while (!sr.EndOfStream)
+            {
+                string linija = sr.ReadLine();
+                if (linija.Contains(smeroviList.SelectedItem.Text))
+                {
+                    do
+                    {
+                        if (sr.EndOfStream) break;
+                        linija = sr.ReadLine();
+                        if (linija.StartsWith("SMER")) break;
+                        smer.Vreme.Add(linija);
+                    }
+                    while (!linija.StartsWith("SMER"));
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < smer.Vreme.Count; i++)
+        {
+
+            TableRow tr = new TableRow();
+            // Cells
+            TableCell sifra = new TableCell(),
+                      vreme = new TableCell();
+            sifra.Text = (i+1).ToString() + ".";
+            vreme.Text = smer.Vreme[i];
+
+            tr.Cells.Add(sifra);
+            tr.Cells.Add(vreme);
+
+            redVoznje.Rows.Add(tr);
+        }
+    }
+
+ /*   protected void smeroviList_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        UzmiSmer();
+    }
+
+    protected void linijeList_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        UcitajSmerove();
+    }
+
+    protected void Button1_Click(object sender, EventArgs e)
+    {
+        UzmiSmer();
+    }
+}
