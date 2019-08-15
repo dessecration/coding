@@ -68,3 +68,31 @@
                 sr.WriteLine(string.Format("{0}|{1}|{2}", date.ToShortDateString(), currency, value.ToString()));
         }
     }
+    --------------------------------------------------
+     protected void Page_Load(object sender, EventArgs e)
+    {
+
+        // Load valute
+        LoadValute();
+    }
+
+    void LoadValute()
+    {
+        var kursService = new KursService.KursServiceSoapClient();
+
+        DropDownList1.Items.Clear();
+
+        foreach (var valuta in kursService.ProcitajSve())
+        {
+            DropDownList1.Items.Add(valuta);
+        }
+    }
+
+    protected void Unnamed2_Click(object sender, EventArgs e)
+    {
+        var kursService = new KursService.KursServiceSoapClient();
+
+        double x;
+        if (!double.TryParse(Vrednost.Text, out x)) x = -1;
+        kursService.UpisiKursNaDan(Calendar1.SelectedDate, DropDownList1.Text, x);
+    }
