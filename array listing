@@ -1,0 +1,94 @@
+const char Splitter = '|';
+    static List<Osoba> Osobe = new List<Osoba>();
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (Request.HttpMethod.ToLower() == "get")
+            LoadFromFile();
+        else
+            SearchFromList(Request);
+    }
+
+    void SearchFromList(HttpRequest request)
+    {
+        // Get info
+        string name = request.Params["ime"];
+        string lname = request.Params["prezime"];
+        string addr = request.Params["adresa"];
+        string mesto = placeDropDownList.SelectedItem.Text;
+        string broj = request.Params["broj"];
+
+        List<Osoba> imenik = Osobe;
+        // Filter
+        imenik = imenik.Where(o => o.Ime.StartsWith(name)).ToList();
+        imenik = imenik.Where(o => o.Prezime.StartsWith(lname)).ToList();
+        imenik = imenik.Where(o => o.Adresa.StartsWith(addr)).ToList();
+        imenik = imenik.Where(o => o.Mesto == mesto).ToList();
+        imenik = imenik.Where(o => o.Broj.StartsWith(broj)).ToList();
+
+        // Table create
+        for (int i = 1; i < mainTable.Rows.Count; i++)
+            mainTable.Rows.RemoveAt(i);
+        foreach (var osoba in imenik)
+        {
+            TableRow tr = new TableRow();
+            // Cells
+            TableCell sifra = new TableCell(),
+                      ime = new TableCell(),
+                      adresa = new TableCell(),
+                      _mesto = new TableCell(),
+                      brojt = new TableCell(),
+                      email = new TableCell();
+            sifra.Text = osoba.Sifra;
+            ime.Text = string.Format("{0} {1}", osoba.Ime, osoba.Prezime);
+            adresa.Text = osoba.Adresa;
+            _mesto.Text = osoba.Mesto;
+            brojt.Text = osoba.Broj;
+            email.Text = osoba.EMail;
+            // Append
+            tr.Cells.AddRange(new TableCell[]
+            {
+                sifra,ime,adresa,_mesto,brojt,email
+            });
+            mainTable.Rows.Add(tr);
+        }
+
+    }
+
+    void LoadFromFile()
+    {
+        Osobe.Clear();
+        placeDropDownList.Items.Clear();
+        using (StreamReader sr = new StreamReader(MapPath("~/imenik.txt")))
+        {
+            while (!sr.EndOfStream)
+            {
+                string[] osoba = sr.ReadLine().Split(Splitter);
+                if (placeDropDownList.Items.FindByText(osoba[4]) == null)
+                {
+                    placeDropDownList.Items.Add(osoba[4]);
+                }
+                Osobe.Add(new Osoba
+                {
+                    Sifra = osoba[0],
+                    Ime = osoba[1],
+                    Prezime = osoba[2],
+                    Adresa = osoba[3],
+                    Mesto = osoba[4],
+                    Broj = osoba[5],
+                    EMail = osoba[6]
+                });
+            }
+        }
+    }
+
+    public class Osoba
+    {
+        public string Sifra,
+                      Ime,
+                      Prezime,
+                      Adresa,
+                      Mesto,
+                      Broj,
+                      EMail;
+    }
