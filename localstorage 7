@@ -1,0 +1,37 @@
+const sediste = document.getElementsByName("sediste")[0];
+const ime = document.getElementsByName("ime")[0];
+const email = document.getElementsByName("email")[0];
+
+function getTaken() {
+    return localStorage.getItem("zauzeta") === null ? [] : localStorage.getItem("zauzeta").split(",");
+}
+
+function setTaken(taken) {
+    localStorage.setItem("zauzeta", taken);
+}
+
+let zauzeta = getTaken().filter(o => o != "");
+
+document.getElementById("submit").onclick = (ev) => {
+    ev.preventDefault();
+    if(zauzeta.indexOf(sediste.value) !== -1)
+    {
+        alert("Mesto je zauzeto");
+    }
+    else if(sediste.value.length !== 0 && ime.value.length !== 0 && email.value.length !== 0)
+    {
+        zauzeta.push(sediste.value);
+        setTaken(zauzeta);
+        location.reload();
+    }
+    else
+        alert("Nije sve uneto!");
+};
+
+for(let mesta of document.getElementsByClassName("mesto"))
+{
+    mesta.style.backgroundColor = zauzeta.indexOf(mesta.innerHTML) !== -1 ? 'red' : 'green';
+    mesta.onclick = () => {
+        sediste.value = mesta.innerHTML;
+};
+}
