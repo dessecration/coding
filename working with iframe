@@ -1,0 +1,7 @@
+const iframe = document.getElementsByTagName("iframe")[0];
+const select = document.getElementsByTagName("select")[0];
+const url = "https://naslovi.net/vremenska-prognoza/";
+
+select.onchange = function () {
+    iframe.src = `${url}${select.value}`;
+};
