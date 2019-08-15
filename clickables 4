@@ -1,0 +1,15 @@
+const audio = document.getElementsByTagName("audio")[0];
+
+for (let drzava of document.getElementsByClassName("drzava")) {
+    drzava.onclick = () => {
+        window.open(`${drzava.id}.aspx`);
+    }
+    drzava.onmouseover = () => {
+        audio.src = `Audio/${drzava.id}.mp3`;
+        audio.load();
+        audio.play();
+    }
+    drzava.onmouseleave = () => {
+        audio.pause();
+    }
+}
