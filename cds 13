@@ -1,0 +1,133 @@
+public partial class Default : System.Web.UI.Page
+    {
+        static List<Album> albumi = new List<Album>();
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (IsPostBack)
+            {
+                SearchAlbums();
+            }
+            else
+            {
+                LoadAlbums();
+                LoadYears();
+                LoadGenres();
+                LoadHouses();
+            }
+        }
+
+        private void SearchAlbums()
+        {
+            var lAlbumi = new List<Album>(albumi);
+            // Po imenu
+            lAlbumi = lAlbumi.Where(a => a.Izvodjac.StartsWith(izvodjacBox.Text)).ToList();
+            // Naziv albuma
+            lAlbumi = lAlbumi.Where(a => a.Naziv.StartsWith(nazivAlbumaBox.Text)).ToList();
+            // Po zanru
+            lAlbumi = lAlbumi.Where(a => a.Zanr == zanrList.Text).ToList();
+            // Po godini
+            lAlbumi = lAlbumi.Where(a => a.Godina.ToString() == godinaList.Text).ToList();
+            // Po kuci
+            lAlbumi = lAlbumi.Where(a => a.Izdavac == kuceList.Text).ToList();
+
+            dataTable.Rows.Clear();
+
+            foreach (var album in lAlbumi)
+            {
+                var dr = new TableRow();
+
+                // cellovi
+                TableCell izvodjac = new TableCell(),
+                          naziv = new TableCell(),
+                          zanr = new TableCell(),
+                          godina = new TableCell(),
+                          kuca = new TableCell(),
+                          omot = new TableCell();
+
+                izvodjac.Text = album.Izvodjac;
+                naziv.Text = album.Naziv;
+                zanr.Text = album.Zanr;
+                godina.Text = album.Godina.ToString();
+                kuca.Text = album.Izdavac;
+                omot.Text = string.Format("<img src='/slike/{0}' style='width:220px;'/>", album.Slika);
+
+
+                dr.Cells.AddRange(new TableCell[]
+                {
+                    izvodjac,naziv,
+                    zanr,godina,
+                    kuca,omot
+                });
+
+                dataTable.Rows.Add(dr);
+            }
+        }
+
+        private void LoadHouses()
+        {
+            kuceList.Items.Clear();
+            var kuce = albumi.Select(a => a.Izdavac).Distinct().ToArray();
+            foreach (var kuca in kuce)
+            {
+                kuceList.Items.Add(kuca.ToString());
+            }
+        }
+
+        private void LoadGenres()
+        {
+            zanrList.Items.Clear();
+            var genres = albumi.Select(a => a.Zanr).Distinct().ToArray();
+            foreach (var genre in genres)
+            {
+                zanrList.Items.Add(genre.ToString());
+            }
+        }
+
+        private void LoadYears()
+        {
+            godinaList.Items.Clear();
+            var godine = albumi.Select(a => a.Godina).Distinct().OrderByDescending(a => a).ToArray();
+            foreach (var godina in godine)
+            {
+                godinaList.Items.Add(godina.ToString());
+            }
+        }
+
+        private void LoadAlbums()
+        {
+            albumi.Clear();
+            try
+            {
+                using (var sr = new StreamReader(Server.MapPath("katalog.txt")))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        string[] info = sr.ReadLine().Split('|');
+                        albumi.Add(new Album()
+                        {
+                            Izvodjac = info[0],
+                            Naziv = info[1],
+                            Zanr = info[2],
+                            Godina = Int32.Parse(info[3]),
+                            Izdavac = info[4],
+                            Slika = info[5]
+                        });
+                    }
+                }
+            }
+            catch
+            { }
+        }
+    }
+    -------------
+    //create cs file
+      public class Album
+    {
+        public string Izvodjac,
+                      Naziv,
+                      Zanr,
+                      Izdavac,
+                      Slika;
+        public int Godina;
+    }
