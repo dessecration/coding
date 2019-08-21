@@ -1,0 +1,48 @@
+string xpath;
+        List<string> Dani = new List<string>(){ "Ponedeljak", "Utorak", "Sreda", "Cetvrtak", "Petak" };
+        //
+        // GET: /home/
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+        public ActionResult Raspored()
+        {
+            xpath = Server.MapPath(Request.Params["xml"]+".xml");
+            if (!System.IO.File.Exists(xpath))
+                xpath = Server.MapPath("RasporedXML.xml");
+            //@"D:\Škola\a16\a16\RasporedXML.xml";
+            List<List<Cas>> casovi = new List<List<Cas>>(6);
+            for (int i = 0; i < 6; i++)
+                casovi.Add(new List<Cas>(6));
+            for (int i = 0; i < 6; i++)
+                for(int _ = 0; _ < 6; _++)
+                    casovi[i].Add(new Cas());
+            //Cas[,] casovi = new Cas[7, 6];
+            XmlDocument doc = new XmlDocument();
+            doc.Load(xpath);
+            foreach (XmlElement el in doc.SelectNodes("Raspored/cas"))
+            {
+                var rbr = Convert.ToInt32(el.FirstChild.InnerText);
+                var dan = Dani.IndexOf(el.ChildNodes[1].InnerText);
+                var ime = el.LastChild.InnerText;
+
+                casovi[rbr][dan+1] = new Cas()
+                {
+                    RedniBroj = rbr,
+                    Dan = dan.ToString(),
+                    Naziv = ime
+                };
+            }
+            for (int i = 0; i < 6; i++)
+                casovi[i][0].Naziv = (i + 1).ToString();
+            return View(casovi);
+        }
+        ------------
+        Model:
+         public class Cas
+    {
+        public int RedniBroj;
+        public string Dan, Naziv;
+    }
