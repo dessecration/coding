@@ -1,0 +1,82 @@
+ public ActionResult Index()
+        {
+            List<Kviz> pitanja = new List<Kviz>();
+            XmlDocument dok = new XmlDocument();
+            dok.Load(Server.MapPath("~/XMLFile1.xml"));
+            foreach (XmlNode item in dok.SelectNodes("/kviz/Pitanje"))
+            {
+                pitanja.Add(new Kviz 
+                {
+                    Rbr=item["Rbr"].InnerText,
+                    Pitanje=item["Pitanje"].InnerText,
+                    Odgovor1=item["Odgovor1"].InnerText,
+                    Odgovor2=item["Odgovor2"].InnerText,
+                    Odgovor3=item["Odgovor3"].InnerText,
+                    Odgovor4=item["Odgovor4"].InnerText,
+                    Resenje=item["Resenje"].InnerText
+                });
+            }
+            Random ran= new Random();
+            int br1 = ran.Next(0, 2);
+            int br2 = ran.Next(3, 5);
+            int br3 = ran.Next(6, 8);
+            A17.Models.Kviz pitanje1 = pitanja[br1];
+            ViewBag.Kvescn1 = pitanje1.Pitanje;
+
+            A17.Models.Kviz pitanje2 = pitanja[br2];
+            ViewBag.Kvescn2 = pitanje2.Pitanje;
+
+            A17.Models.Kviz pitanje3 = pitanja[br3];
+            ViewBag.Kvescn3 = pitanje3.Pitanje;
+
+            TempData["pitanje1"] = ViewBag.Kvescn1;
+            TempData["pitanje2"] = ViewBag.Kvescn2;
+            TempData["pitanje3"] = ViewBag.Kvescn3;
+            TempData["pitanja"] = pitanja;
+            return View(pitanja);
+        }
+        public ActionResult Index2()
+        {
+            List<string> resenja = new List<string>();
+            List<Kviz> pitanja = new List<Kviz>();
+            XmlDocument dok = new XmlDocument();
+            dok.Load(Server.MapPath("~/XMLFile1.xml"));
+            foreach (XmlNode item in dok.SelectNodes("/kviz/Pitanje"))
+            {
+                pitanja.Add(new Kviz
+                {
+                    Rbr = item["Rbr"].InnerText,
+                    Pitanje = item["Pitanje"].InnerText,
+                    Odgovor1 = item["Odgovor1"].InnerText,
+                    Odgovor2 = item["Odgovor2"].InnerText,
+                    Odgovor3 = item["Odgovor3"].InnerText,
+                    Odgovor4 = item["Odgovor4"].InnerText,
+                    Resenje = item["Resenje"].InnerText
+                });
+            }
+            foreach (A17.Models.Kviz item in pitanja)
+            {
+                if (item.Pitanje == TempData["pitanje1"].ToString() || item.Pitanje == TempData["pitanje2"].ToString() || item.Pitanje == TempData["pitanje3"].ToString()) 
+                {
+                    resenja.Add(item.Resenje);
+                }
+            }
+            ViewBag.Resenje1 = resenja[0];
+            ViewBag.Resenje2 = resenja[1];
+            ViewBag.Resenje3 = resenja[2];
+            ViewBag.Odgovor1 = Request.Form["odg1"];
+            ViewBag.Odgovor2 = Request.Form["odg2"];
+            ViewBag.Odgovor3 = Request.Form["odg3"];
+            return View();
+        }
+        -----------------
+         public class Kviz
+    {
+        public string Rbr { get; set; }
+        public string Pitanje { get; set; }
+        public string Odgovor1 { get; set; }
+        public string Odgovor2 { get; set; }
+        public string Odgovor3 { get; set; }
+        public string Odgovor4 { get; set; }
+        public string Resenje { get; set; }
+    }
