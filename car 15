@@ -1,0 +1,75 @@
+public ActionResult Index()
+        {
+            List<string> nazivi = new List<string>();
+
+            using (StreamReader sr = new StreamReader(Server.MapPath(Path.Combine("~/App_Data","vozila.txt"))))
+            {
+                while (!sr.EndOfStream)
+                {
+                    nazivi.Add(sr.ReadLine().Split('|')[0]);
+                }
+            }
+
+
+            return View(nazivi);
+        }
+
+        public ActionResult Pregled()
+        {
+            List<Vozilo> vozila = new List<Vozilo>();
+
+            using (StreamReader sr = new StreamReader(Server.MapPath(Path.Combine("~/App_Data", "vozila.txt"))))
+            {
+                while (!sr.EndOfStream)
+                {
+                    var i = sr.ReadLine().Split('|');
+
+                    vozila.Add(new Vozilo()
+                    {
+                        RegBroj = i[0],
+                        Marka = i[1],
+                        Godina = i[2],
+                        Boja = i[3]
+                    });
+                }
+            }
+
+            foreach (var vozilo in vozila)
+            {
+                try
+                {
+                    vozilo.KM = 0;
+                    using (StreamReader sr = new StreamReader(Server.MapPath(Path.Combine("~/App_Data", vozilo.RegBroj + ".txt"))))
+                    {
+                        while (!sr.EndOfStream)
+                        {
+                            vozilo.KM += Convert.ToInt32(sr.ReadLine().Split('|').Last());
+                        }
+                    }
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            vozila = vozila.Where(v => v.KM > 0).ToList();
+
+            return View(vozila);
+        }
+
+        public ActionResult Insert()
+        {
+            string reg = Request.Form["reg"],
+                   datum = Request.Form["datum"],
+                   start = Request.Form["start"],
+                   kraj = Request.Form["kraj"],
+                   km = Request.Form["km"];
+
+            using (StreamWriter sw = new StreamWriter(Server.MapPath(Path.Combine("~/App_Data", reg + ".txt")), true))
+            {
+                sw.WriteLine(string.Format("{0}|{1}|{2}|{3}", datum, start, kraj, km));
+            }
+
+            return null;
+        }
