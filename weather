@@ -1,0 +1,57 @@
+ public ActionResult Index()
+        {
+            List<Vremenska> mesta = new List<Vremenska>();
+            XmlDocument dok = new XmlDocument();
+            dok.Load(Server.MapPath("~/XMLFile1.xml"));
+           
+            string Grad = Request.Form["cao"];
+            foreach (XmlNode item in dok.SelectNodes("/Vremenska/Prognoza"))
+            {
+                mesta.Add(new Vremenska 
+                {
+                    Mesto=item["Mesto"].InnerText,
+                    NazivMesto = item["NazivMesta"].InnerText,
+                    MinTemp=item["MinTemperatura"].InnerText,
+                    MaxTemp=item["MaxTemperatura"].InnerText,
+                    Vreme=item["Vreme"].InnerText
+                });
+            }
+            string src="";
+            foreach (Vremenska item in mesta)
+            {
+                if (Grad == item.NazivMesto) 
+                {
+                    ViewBag.Min = item.MinTemp;
+                    ViewBag.Max = item.MaxTemp;
+                    src = "../../slike/" + item.Vreme + ".png";
+                }
+            }
+            ViewBag.Src = src;
+
+            return View(mesta);
+        }
+        public ActionResult Index2() 
+        {
+            List<Vremenska> mesta = new List<Vremenska>();
+            XmlDocument dok = new XmlDocument();
+            dok.Load(Server.MapPath("~/XMLFile1.xml"));
+            foreach (XmlNode item in dok.SelectNodes("/Vremenska/Prognoza"))
+            {
+                mesta.Add(new Vremenska
+                {
+                    Mesto = item["Mesto"].InnerText,
+                    NazivMesto = item["NazivMesta"].InnerText,
+                    MinTemp = item["MinTemperatura"].InnerText,
+                    MaxTemp = item["MaxTemperatura"].InnerText,
+                    Vreme = item["Vreme"].InnerText
+                });
+            }
+            return View(mesta);
+        }
+        ---------------------
+        Model>
+         public string Mesto { get; set; }
+        public string NazivMesto { get; set; }
+        public string MinTemp { get; set; }
+        public string MaxTemp { get; set; }
+        public string Vreme { get; set; }
