@@ -1,0 +1,74 @@
+ protected void prevedi_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(Settings.Default.ConString))
+                {
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand(string.Format("SELECT {1},{0},Opis FROM Recnik WHERE {0}=@rec",smer.Text.Split('-')[0],smer.Text.Split('-')[1]), con))
+                    {
+
+                        cmd.Parameters.Add("@rec", SqlDbType.NVarChar, 50).Value = rec.Text;
+
+                        using (var dr = cmd.ExecuteReader())
+                        {
+                            if (dr.Read())
+                            {
+                                // nema smisla al nosi 9 bodova
+                                var pp = new Prevod()
+                                {
+                                    rec = dr[1].ToString(),
+                                    prevod = dr[0].ToString(),
+                                    opis = dr[2].ToString()
+                                };
+
+                                prevod.Text = "Prevod: " + pp.prevod;
+                                opis.Text = "Opis: " + pp.opis;
+                            }
+                            else throw new Exception("Te reci nema u recniku!");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                prevod.Text = ex.Message;
+                opis.Text = "";
+            }
+        }
+        -----------------------------------
+        
+        
+        
+        protected void SnimiButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(Settings.Default.ConString))
+                {
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Recnik(Srpski,Engleski,Opis) VALUES (@sr,@en,@op)", con))
+                    {
+                        // nema smisla al nosi 9 bodova
+                        var pp = new Prevod()
+                        {
+                            rec = srpski.Text,
+                            prevod = engleski.Text,
+                            opis = opis.Text
+                        };
+
+                        cmd.Parameters.Add("@sr", SqlDbType.NVarChar, 50).Value = srpski.Text;
+                        cmd.Parameters.Add("@en", SqlDbType.NVarChar, 50).Value = engleski.Text;
+                        cmd.Parameters.Add("@op", SqlDbType.NVarChar, 1024).Value = opis.Text;
+
+                        cmd.ExecuteNonQuery();
+
+                        errorLabel.Text = "Uneto!";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorLabel.Text = ex.Message;
+            }
+        }
