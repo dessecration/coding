@@ -1,0 +1,31 @@
+ ime1.Text = imeOsobe1.Text;
+            ime2.Text = imeOsobe2.Text;
+
+            var datum1 = datumOsobe1.Text.Replace(".","");
+            var datum2 = datumOsobe2.Text.Replace(".","");
+
+            float datumz1 = 0,
+                  datumz2 = 0;
+
+            while (true)
+            {
+                datumz1 = 0;
+                for (int i = 0; i < datum1.Length; i++)
+                    datumz1 += Int32.Parse(datum1[i].ToString());
+                if (datumz1 <= 9) break;
+                datum1 = datumz1.ToString();
+            }
+
+            while (true)
+            {
+                datumz2 = 0;
+                for (int i = 0; i < datum2.Length; i++)
+                    datumz2 += Int32.Parse(datum2[i].ToString());
+                if (datumz2 <= 9) break;
+                datum2 = datumz2.ToString();
+            }
+            if(datumz1<datumz2)
+
+            Label5.Text = string.Format("{0}%", (datumz1 / datumz2) * 100);
+            else
+                Label5.Text = string.Format("{0}%", (datumz2 / datumz1) * 100);
